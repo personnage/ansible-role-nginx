@@ -7,7 +7,7 @@ nginx_package_name: "nginx"
 
 nginx_server_tokens: "on"
 
-nginx_worker_processes: "auto"
+nginx_worker_processes: "1"
 nginx_worker_connections: "1024"
 nginx_multi_accept: "on"
 
