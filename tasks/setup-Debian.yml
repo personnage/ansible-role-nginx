@@ -1,4 +1,19 @@
 ---
+- name: Add signing key.
+  apt_key:
+    url: "http://nginx.org/keys/nginx_signing.key"
+    state: present
+
+- name: Add nginx deb repo.
+  apt_repository:
+    repo: 'deb http://nginx.org/packages/{{ ansible_distribution|lower }}/ {{ ansible_distribution_release }} nginx'
+    state: present
+
+- name: Add nginx deb-src repo.
+  apt_repository:
+    repo: 'deb-src http://nginx.org/packages/{{ ansible_distribution|lower }}/ {{ ansible_distribution_release }} nginx'
+    state: present
+
 - name: Update apt cache.
   apt: update_cache=yes cache_valid_time=86400
 

@@ -19,15 +19,25 @@ Available variables are listed below, along with default values (see `defaults/m
 A list of vhost definitions (server blocks) for Nginx virtual hosts. If left empty, you will need to supply your own virtual host configuration. See the commented example in `defaults/main.yml` for available server options. If you have a large number of customizations required for your server definition(s), you're likely better off managing the vhost configuration file yourself, leaving this variable set to `[]`.
 
     nginx_vhosts:
-      - listen: "80 default_server"
-        server_name: "example.com"
+      - listen:
+          - "80 default_server"
+          - "8080"
+        server_name:
+          - "www.example.com"
+          - "example.com"
         root: "/var/www/example.com"
         index: "index.php index.html index.htm"
-        error_page: ""
+        error_page:
+          - "404 /40x.html"
+          - "500 /50x.html"
+          - "502 503 = 503 /50x.html"
         access_log: ""
         error_log: ""
         extra_parameters: |
           location ~ \.php$ {
+            if (!-f $document_root$fastcgi_script_name) {
+              return 404;
+            }
             fastcgi_split_path_info ^(.+\.php)(/.+)$;
             fastcgi_pass unix:/var/run/php5-fpm.sock;
             fastcgi_index index.php;
@@ -37,7 +47,7 @@ A list of vhost definitions (server blocks) for Nginx virtual hosts. If left emp
 
 An example of a fully-populated nginx_vhosts entry, using a `|` to declare a block of syntax for the `extra_parameters`.
 
-    nginx_remove_default_vhost: false
+    nginx_remove_default_vhost: true
 
 Whether to remove the 'default' virtualhost configuration supplied by Nginx. Useful if you want the base `/` URL to be directed at one of your own virtual hosts configured in a separate .conf file.
 
@@ -46,24 +56,41 @@ Whether to remove the 'default' virtualhost configuration supplied by Nginx. Use
 If you are configuring Nginx as a load balancer, you can define one or more upstream sets using this variable. In addition to defining at least one upstream, you would need to configure one of your server blocks to proxy requests through the defined upstream (e.g. `proxy_pass http://myapp1;`). See the commented example in `defaults/main.yml` for more information.
 
     nginx_user: "nginx"
+    nginx_group: "nginx"
 
-The user under which Nginx will run. Defaults to `nginx` for RedHat, and `www-data` for Debian.
+The user and group under which Nginx will run. Defaults to `nginx` for RedHat, and `www-data` for Debian.
 
-    nginx_worker_processes: "1"
+    nginx_worker_processes: "auto"
     nginx_worker_connections: "1024"
+    nginx_multi_accept: "on"
 
-`nginx_worker_processes` should be set to the number of cores present on your machine. Connections (find this number with `grep processor /proc/cpuinfo | wc -l`). `nginx_worker_connections` is the number of connections per process. Set this higher to handle more simultaneous connections (and remember that a connection will be used for as long as the keepalive timeout duration for every client!).
+`nginx_worker_processes` should be set to the number of cores present on your machine. Connections (find this number with `grep processor /proc/cpuinfo | wc -l`). `nginx_worker_connections` is the number of connections per process. Set this higher to handle more simultaneous connections (and remember that a connection will be used for as long as the keepalive timeout duration for every client!). If `nginx_multi_accept` is disabled, a worker process will accept one new connection at a time.
 
-    nginx_error_log: "/var/log/nginx/error.log warn"
+    nginx_pid_file: "/var/run/nginx.pid"
+    nginx_error_log: "/var/log/nginx/error.log"
     nginx_access_log: "/var/log/nginx/access.log main buffer=16k"
 
-Configuration of the default error and access logs. Set to `off` to disable a log entirely.
+`nginx_pid_file` defines a file that will store the process ID of the main process. Configuration of the default error and access logs. Set to `off` to disable a log entirely.
+
+    nginx_server_tokens: "on"
+
+Enables or disables emitting nginx version in error messages and in the “Server” response header field.
 
     nginx_sendfile: "on"
     nginx_tcp_nopush: "on"
     nginx_tcp_nodelay: "on"
 
 TCP connection options. See [this blog post](https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html) for more information on these directives.
+
+    nginx_open_file_cache: "off"
+
+Configures a cache that can store: open file descriptors, their sizes and modification times; information on existence of directories; file lookup errors, such as “file not found”, “no read permission”, and so on.
+
+    nginx_gzip: "on"
+    nginx_gzip_comp_level: 4
+    nginx_gzip_min_length: 1000
+
+The [ngx_http_gzip_module](http://nginx.org/en/docs/http/ngx_http_gzip_module.html) module is a filter that compresses responses using the “gzip” method. This often helps to reduce the size of transmitted data by half or even more.
 
     nginx_keepalive_timeout: "65"
     nginx_keepalive_requests: "100"
