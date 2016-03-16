@@ -5,15 +5,26 @@ nginx_default_release: ""
 # The name of the nginx apt/yum package to install.
 nginx_package_name: "nginx"
 
+nginx_server_tokens: "on"
+
 nginx_worker_processes: "1"
 nginx_worker_connections: "1024"
+nginx_multi_accept: "on"
 
-nginx_error_log: "/var/log/nginx/error.log warn"
+nginx_pid_file: "/var/run/nginx.pid"
+nginx_error_log: "/var/log/nginx/error.log error"
 nginx_access_log: "/var/log/nginx/access.log main buffer=16k"
 
 nginx_sendfile: "on"
 nginx_tcp_nopush: "on"
 nginx_tcp_nodelay: "on"
+
+nginx_open_file_cache: "off"
+
+# gzip in http context
+nginx_gzip: "on"
+nginx_gzip_comp_level: 4
+nginx_gzip_min_length: 1000
 
 nginx_keepalive_timeout: "65"
 nginx_keepalive_requests: "100"
@@ -40,6 +51,12 @@ nginx_extra_http_options: ""
 nginx_remove_default_vhost: false
 nginx_vhosts: []
 # Example vhost below, showing all available options:
+# nginx_vhosts.listen string|list optional. defualt: "80 default_server"
+# nginx_vhosts.server_name string|list required.
+# nginx_vhosts.root string optional.
+# nginx_vhosts.index string optional. default: "index.html index.htm"
+# nginx.error_page string|list optional.
+
 # - listen: "80 default_server" # default: "80 default_server"
 #   server_name: "example.com" # default: N/A
 #   root: "/var/www/example.com" # default: N/A

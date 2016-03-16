@@ -31,6 +31,8 @@ script:
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
 
+  - sudo nginx -t
+
   # TODO - get the test working. Probably need to add a virtual host.
   # Request a page via Nginx, to make sure Nginx is running and responds.
   # - "curl http://localhost/"

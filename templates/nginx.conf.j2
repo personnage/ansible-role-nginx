@@ -1,12 +1,28 @@
-user  {{ nginx_user }};
+# {{ ansible_managed }}
+
+{% if nginx_group is defined %}
+user {{ nginx_user }} {{ nginx_group }};
+{% else %}
+user {{ nginx_user }};
+{% endif %}
 
 error_log  {{ nginx_error_log }};
-pid        /var/run/nginx.pid;
+pid        {{ nginx_pid_file }};
 
 worker_processes  {{ nginx_worker_processes }};
+{% if nginx_worker_rlimit_nofile is defined %}
+worker_rlimit_nofile {{ nginx_worker_rlimit_nofile }};
+{% endif %}
 
 events {
+{% if nginx_accept_mutex is defined %}
+accept_mutex {{ nginx_accept_mutex }};
+{% endif %}
+    multi_accept {{ nginx_multi_accept }};
     worker_connections  {{ nginx_worker_connections }};
+{% if nginx_use is defined %}
+use {{ nginx_use }};
+{% endif %}
 }
 
 {% if nginx_extra_conf_options %}
@@ -18,6 +34,7 @@ http {
     default_type  application/octet-stream;
 
     server_names_hash_bucket_size 64;
+    reset_timedout_connection on;
 
     client_max_body_size {{ nginx_client_max_body_size }};
 
@@ -26,6 +43,7 @@ http {
                       '"$http_user_agent" "$http_x_forwarded_for"';
 
     access_log  {{ nginx_access_log }};
+    server_tokens {{ nginx_server_tokens }};
 
     sendfile        {{ nginx_sendfile }};
     tcp_nopush      {{ nginx_tcp_nopush }};
@@ -34,14 +52,18 @@ http {
     keepalive_timeout  {{ nginx_keepalive_timeout }};
     keepalive_requests {{ nginx_keepalive_requests }};
 
-    #gzip  on;
+    gzip {{ nginx_gzip }};
+    gzip_min_length {{ nginx_gzip_min_length }};
+    gzip_comp_level {{ nginx_gzip_comp_level }};
 
-{% if nginx_proxy_cache_path %}
-    proxy_cache_path {{ nginx_proxy_cache_path }};
-{% endif %}
+    open_file_cache {{ nginx_open_file_cache }};
 
 {% if nginx_extra_http_options %}
     {{ nginx_extra_http_options }}
+{% endif %}
+
+{% if nginx_proxy_cache_path %}
+    proxy_cache_path {{ nginx_proxy_cache_path }};
 {% endif %}
 
 {% for upstream in nginx_upstreams %}
