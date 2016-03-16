@@ -1,30 +1,55 @@
+# {{ ansible_managed }}
 {% for vhost in nginx_vhosts %}
 server {
-    listen {{ vhost.listen | default('80 default_server') }};
-    server_name {{ vhost.server_name }};
+{# listen string or list on undefined #}
+{% if vhost.listen is defined %}
+{% if vhost.listen is string %}
+    listen {{ vhost.listen }};
+{% elif vhost.listen is iterable %}
+{% for listen in vhost.listen %}
+    listen {{ listen }};
+{% endfor %}
+{% endif %}
+{% else %}
+    listen 80 default_server;
+{% endif %}
 
-    {% if vhost.root is defined %}
+{# server_name string or list #}
+{% if vhost.server_name is string %}
+    server_name {{ vhost.server_name }};
+{% else %}
+    server_name {{ vhost.server_name|join(' ') }};
+{% endif %}
+
+{% if vhost.root is defined %}
     root {{ vhost.root }};
-    {% endif %}
+{% endif %}
 
     index {{ vhost.index | default('index.html index.htm') }};
 
-    {% if vhost.error_page is defined %}
+{% if vhost.error_page is defined %}
+{% if vhost.error_page is string %}
     error_page {{ vhost.error_page }};
-    {% endif %}
-    {% if vhost.access_log is defined %}
+{% elif vhost.error_page is iterable %}
+{% for error_page in vhost.error_page %}
+    error_page {{ error_page }};
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if vhost.access_log is defined %}
     access_log {{ vhost.access_log }};
-    {% endif %}
-    {% if vhost.error_log is defined %}
-    error_log {{ vhost.error_log }} error;
-    {% endif %}
+{% endif %}
+{% if vhost.error_log is defined %}
+    error_log {{ vhost.error_log }};
+{% endif %}
 
     {% if vhost.return is defined %}
-    return {{ vhost.return }};
+return {{ vhost.return }};
     {% endif %}
 
-    {% if vhost.extra_parameters is defined %}
-    {{ vhost.extra_parameters }}
-    {% endif %}
+{% if vhost.extra_parameters is defined %}
+{{ vhost.extra_parameters }}
+{% endif %}
 }
+
 {% endfor %}

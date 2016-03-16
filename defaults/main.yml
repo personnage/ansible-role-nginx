@@ -7,7 +7,7 @@ nginx_package_name: "nginx"
 
 nginx_server_tokens: "on"
 
-nginx_worker_processes: "1"
+nginx_worker_processes: "auto"
 nginx_worker_connections: "1024"
 nginx_multi_accept: "on"
 
@@ -19,7 +19,7 @@ nginx_sendfile: "on"
 nginx_tcp_nopush: "on"
 nginx_tcp_nodelay: "on"
 
-nginx_open_file_cache: "on"
+nginx_open_file_cache: "off"
 
 # gzip in http context
 nginx_gzip: "on"
@@ -51,6 +51,12 @@ nginx_extra_http_options: ""
 nginx_remove_default_vhost: false
 nginx_vhosts: []
 # Example vhost below, showing all available options:
+# nginx_vhosts.listen string|list optional. defualt: "80 default_server"
+# nginx_vhosts.server_name string|list required.
+# nginx_vhosts.root string optional.
+# nginx_vhosts.index string optional. default: "index.html index.htm"
+# nginx.error_page string|list optional.
+
 # - listen: "80 default_server" # default: "80 default_server"
 #   server_name: "example.com" # default: N/A
 #   root: "/var/www/example.com" # default: N/A
