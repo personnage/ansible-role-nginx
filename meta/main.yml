@@ -2,7 +2,7 @@
 dependencies: []
 
 galaxy_info:
-  author: geerlingguy
+  author: personnage
   description: Nginx installation for Linux/UNIX.
   company: "Midwestern Mac, LLC"
   license: "license (BSD, MIT)"
