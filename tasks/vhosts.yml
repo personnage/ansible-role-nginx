@@ -1,4 +1,15 @@
 ---
+- name: Ensure conf directory exists.
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+  with_items:
+    - "{{ nginx_conf_path }}"
+    - "{{ nginx_vhost_path }}"
+
 - name: Remove default nginx vhost config file (if configured).
   file:
     path: "{{ nginx_default_vhost_path }}"

@@ -1,6 +1,6 @@
 ---
 nginx_conf_path: /etc/nginx/conf.d
 nginx_vhost_path: /etc/nginx/sites-enabled
-nginx_default_vhost_path: /etc/nginx/sites-enabled/default
+nginx_default_vhost_path: "{{ nginx_conf_path }}/default.conf"
 __nginx_user: "www-data"
 __nginx_group: "www-data"
